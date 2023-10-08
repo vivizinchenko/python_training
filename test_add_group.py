@@ -26,7 +26,6 @@ class TestAddGroup(unittest.TestCase):
         self.open_groups_page(wd)
         self.logout(wd)
 
-
     def open_home_page(self, wd):
         wd.get("http://localhost/addressbook/index.php")
 
