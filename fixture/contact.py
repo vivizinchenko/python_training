@@ -15,11 +15,8 @@ class ContactHelper:
         wd = self.app.wd
         wd.find_element("link text", "add new").click()
 
-    def create(self, contact):
+    def filling_in_the_fields(self, contact):
         wd = self.app.wd
-        self.app.open_home_page()
-        self.open_add_contact_page()
-        # заполнить поля контакта
         wd.find_element("name", "firstname").click()
         wd.find_element("name", "firstname").clear()
         wd.find_element("name", "firstname").send_keys(contact.firstname)
@@ -93,7 +90,23 @@ class ContactHelper:
         wd.find_element("name", "notes").click()
         wd.find_element("name", "notes").clear()
         wd.find_element("name", "notes").send_keys(contact.notes)
+
+    def create(self, contact):
+        wd = self.app.wd
+        self.app.open_home_page()
+        self.open_add_contact_page()
+        self.filling_in_the_fields(contact)
         # нажать кнопку создания контакта
+        wd.find_element("name", "submit").click()
+        self.app.open_home_page()
+        self.open_contact()
+
+    def modify(self, contact):
+        wd = self.app.wd
+        self.app.open_home_page()
+        self.open_add_contact_page()
+        self.filling_in_the_fields(contact)
+        # нажать кнопку сохранения контакта
         wd.find_element("name", "submit").click()
         self.app.open_home_page()
         self.open_contact()
