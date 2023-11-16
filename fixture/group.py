@@ -18,30 +18,33 @@ class GroupHelper:
 
     def filling_in_the_fields(self, group):
         wd = self.app.wd
-        wd.find_element("name", "group_name").click()
-        wd.find_element("name", "group_name").clear()
-        wd.find_element("name", "group_name").send_keys(group.name)
-        wd.find_element("name", "group_header").click()
-        wd.find_element("name", "group_header").clear()
-        wd.find_element("name", "group_header").send_keys(group.header)
-        wd.find_element("name", "group_footer").click()
-        wd.find_element("name", "group_footer").clear()
-        wd.find_element("name", "group_footer").send_keys(group.footer)
+        self.change_field_value("group_name", group.name)
+        self.change_field_value("group_header", group.header)
+        self.change_field_value("group_footer", group.header)
+
+    def change_field_value(self, field_name, text):
+        wd = self.app.wd
+        if text is not None:
+            wd.find_element("name", field_name).click()
+            wd.find_element("name", field_name).clear()
+            wd.find_element("name", field_name).send_keys(text)
 
     def delete_first_group(self):
         wd = self.app.wd
         self.open_groups_page()
-        #выбрать первую группу в списке
-        wd.find_element("name", "selected[]").click()
+        self.select_first_group()
         #нажать кнопку удаления
         wd.find_element("name", "delete").click()
         self.open_groups_page()
 
+    def select_first_group(self):
+        wd = self.app.wd
+        wd.find_element("name", "selected[]").click()
+
     def modify(self, group):
         wd = self.app.wd
         self.open_groups_page()
-        #выбрать первую группу в списке
-        wd.find_element("name", "selected[]").click()
+        self.select_first_group()
         #нажать кнопку редактирования
         wd.find_element("name", "edit").click()
         self.filling_in_the_fields(group)
