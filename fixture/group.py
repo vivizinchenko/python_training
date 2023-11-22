@@ -1,3 +1,6 @@
+from selenium.common.exceptions import NoSuchElementException
+
+
 class GroupHelper:
 
     def __init__(self, app):
@@ -50,3 +53,11 @@ class GroupHelper:
         self.filling_in_the_fields(group)
         wd.find_element("name", "update").click()
         self.open_groups_page()
+
+    def count(self):
+        wd = self.app.wd
+        self.open_groups_page()
+        try:
+            return len(wd.find_element("name", "selected[]"))
+        except NoSuchElementException as e:
+            return 0
