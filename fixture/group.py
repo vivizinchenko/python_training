@@ -58,6 +58,6 @@ class GroupHelper:
         wd = self.app.wd
         self.open_groups_page()
         try:
-            return len(wd.find_element("name", "selected[]"))
+            return len(wd.find_elements("name", "selected[]"))
         except NoSuchElementException as e:
             return 0
