@@ -3,10 +3,9 @@ from model.contact import Contact
 
 
 def test_modify_contact(app):
-    old_contacts = app.contact.get_contact_list()
     if app.contact.count() == 0:
         app.contact.create(Contact(firstname="test"))
-    app.contact.modify(Contact(firstname="firstnamemodify",
+    contact = Contact(firstname="firstnamemodify",
                                middlename="middlenamemodify",
                                lastname="lastnamemodify",
                                nickname="nicknamemodify",
@@ -29,12 +28,17 @@ def test_modify_contact(app):
                                ayear="2000",
                                address2="342342, j.Hrterter werwr, rerte 66b",
                                phone2="+79347584411",
-                               notes="notes modify"))
-    new_contacts = app.contact.get_contact_list()
-    assert len(old_contacts) == len(new_contacts)
-
-def test_modify_contact_firstname(app):
+                               notes="notes modify")
     old_contacts = app.contact.get_contact_list()
-    app.contact.modify(Contact(firstname="newfirstnamemodify"))
+    contact.id = old_contacts[0].id
+    app.contact.modify(contact)
     new_contacts = app.contact.get_contact_list()
     assert len(old_contacts) == len(new_contacts)
+    old_contacts[0] = contact
+    assert sorted(old_contacts, key=Contact.id_or_max) == sorted(new_contacts, key=Contact.id_or_max)
+
+#def test_modify_contact_firstname(app):
+ #   old_contacts = app.contact.get_contact_list()
+  #  app.contact.modify(Contact(firstname="newfirstnamemodify"))
+   # new_contacts = app.contact.get_contact_list()
+    #assert len(old_contacts) == len(new_contacts)
