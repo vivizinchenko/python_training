@@ -20,6 +20,7 @@ class GroupHelper:
         self.filling_in_the_fields(group)
         wd.find_element("name", "submit").click()
         self.open_groups_page()
+        self.group_cache = None
 
     def filling_in_the_fields(self, group):
         wd = self.app.wd
@@ -41,6 +42,7 @@ class GroupHelper:
         #нажать кнопку удаления
         wd.find_element("name", "delete").click()
         self.open_groups_page()
+        self.group_cache = None
 
     def select_first_group(self):
         wd = self.app.wd
@@ -55,6 +57,7 @@ class GroupHelper:
         self.filling_in_the_fields(group)
         wd.find_element("name", "update").click()
         self.open_groups_page()
+        self.group_cache = None
 
     def count(self):
         wd = self.app.wd
@@ -64,12 +67,15 @@ class GroupHelper:
         except NoSuchElementException as e:
             return 0
 
+    group_cache = None
+
     def get_group_list(self):
-        wd = self.app.wd
-        self.open_groups_page()
-        groups = []
-        for element in wd.find_elements("css selector", "span.group"):
-            text = element.text
-            id = element.find_element("name", "selected[]").get_attribute("value")
-            groups.append(Group(name=text, id=id))
-        return groups
+        if self.group_cache is None:
+            wd = self.app.wd
+            self.open_groups_page()
+            self.group_cache = []
+            for element in wd.find_elements("css selector", "span.group"):
+                text = element.text
+                id = element.find_element("name", "selected[]").get_attribute("value")
+                self.group_cache.append(Group(name=text, id=id))
+        return list(self.group_cache)

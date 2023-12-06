@@ -66,7 +66,7 @@ class ContactHelper:
         # нажать кнопку создания контакта
         wd.find_element("name", "submit").click()
         self.app.open_home_page()
-        #self.open_contact()
+        self.contact_cache = None
 
     def modify(self, contact):
         wd = self.app.wd
@@ -80,6 +80,7 @@ class ContactHelper:
         wd.find_element(By.XPATH, "//input[@value='Update']").click()
         self.app.open_home_page()
         self.open_contact()
+        self.contact_cache = None
 
     def delete_first_contact(self):
         wd = self.app.wd
@@ -90,6 +91,7 @@ class ContactHelper:
         wd.find_element(By.XPATH, "//input[@value='Delete']").click()
         alert = wd.switch_to.alert
         alert.accept()
+        self.contact_cache = None
 
     def count(self):
         wd = self.app.wd
@@ -99,13 +101,16 @@ class ContactHelper:
         except NoSuchElementException as e:
             return 0
 
+    contact_cache = None
+
     def get_contact_list(self):
-        wd = self.app.wd
-        self.app.open_home_page()
-        contacts = []
-        for element in wd.find_elements("name", "entry"):
-            id = element.find_element("name", "selected[]").get_attribute("value")
-            firstname = element.find_element(By.XPATH, "td[3]").text
-            lastname = element.find_element(By.XPATH, "td[2]").text
-            contacts.append(Contact(firstname=firstname, lastname=lastname, id=id))
-        return contacts
+        if self.contact_cache is None:
+            wd = self.app.wd
+            self.app.open_home_page()
+            self.contact_cache = []
+            for element in wd.find_elements("name", "entry"):
+                id = element.find_element("name", "selected[]").get_attribute("value")
+                firstname = element.find_element(By.XPATH, "td[3]").text
+                lastname = element.find_element(By.XPATH, "td[2]").text
+                self.contact_cache.append(Contact(firstname=firstname, lastname=lastname, id=id))
+        return list(self.contact_cache)
