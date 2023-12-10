@@ -69,12 +69,15 @@ class ContactHelper:
         self.contact_cache = None
 
     def modify(self, contact):
+        self.modify_contact_by_index(0)
+
+    def modify_contact_by_index(self, index, contact):
         wd = self.app.wd
         self.app.open_home_page()
         #выбрать первый контакт в списке
         wd.find_element("name", "selected[]").click()
         #нажать кнопку редактирования
-        wd.find_element(By.XPATH, "//img[@alt='Edit']").click()
+        wd.find_elements(By.XPATH, "//img[@alt='Edit']")[index].click()
         self.filling_in_the_fields(contact)
         # нажать кнопку сохранения контакта
         wd.find_element(By.XPATH, "//input[@value='Update']").click()
@@ -82,16 +85,22 @@ class ContactHelper:
         self.open_contact()
         self.contact_cache = None
 
-    def delete_first_contact(self):
+    def delete_contact_by_index(self, index):
         wd = self.app.wd
         self.app.open_home_page()
-        #выбрать первый контакт в списке
-        wd.find_element("name", "selected[]").click()
+        self.select_contact_by_index(index)
         #нажать кнопку удаления
         wd.find_element(By.XPATH, "//input[@value='Delete']").click()
         alert = wd.switch_to.alert
         alert.accept()
         self.contact_cache = None
+
+    def delete_first_contact(self):
+        self.delete_contact_by_index(0)
+
+    def select_contact_by_index(self, index):
+        wd = self.app.wd
+        wd.find_elements("name", "selected[]")[index].click()
 
     def count(self):
         wd = self.app.wd

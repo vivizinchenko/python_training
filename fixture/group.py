@@ -36,9 +36,12 @@ class GroupHelper:
             wd.find_element("name", field_name).send_keys(text)
 
     def delete_first_group(self):
+        self.delete_group_by_index(0)
+
+    def delete_group_by_index(self, index):
         wd = self.app.wd
         self.open_groups_page()
-        self.select_first_group()
+        self.select_group_by_index(index)
         #нажать кнопку удаления
         wd.find_element("name", "delete").click()
         self.open_groups_page()
@@ -48,16 +51,24 @@ class GroupHelper:
         wd = self.app.wd
         wd.find_element("name", "selected[]").click()
 
-    def modify(self, group):
+    def select_group_by_index(self, index):
+        wd = self.app.wd
+        wd.find_elements("name", "selected[]")[index].click()
+
+    def modify_group_by_index(self, index, group):
         wd = self.app.wd
         self.open_groups_page()
-        self.select_first_group()
+        self.select_group_by_index(index)
         #нажать кнопку редактирования
         wd.find_element("name", "edit").click()
         self.filling_in_the_fields(group)
         wd.find_element("name", "update").click()
         self.open_groups_page()
         self.group_cache = None
+
+    def modify(self, index):
+        wd = self.app.wd
+        self.modify_group_by_index(0)
 
     def count(self):
         wd = self.app.wd
