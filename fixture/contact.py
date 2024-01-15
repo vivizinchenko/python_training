@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 from model.contact import Contact
+import re
 
 
 class ContactHelper:
@@ -53,7 +54,7 @@ class ContactHelper:
         self.change_field_value_date("aday", contact.aday)
         self.change_field_value_date("amonth", contact.amonth)
         self.change_field_value("ayear", contact.ayear)
-        #дополнительные данные
+        # дополнительные данные
         self.change_field_value("address2", contact.address2)
         self.change_field_value("phone2", contact.phone2)
         self.change_field_value("notes", contact.notes)
@@ -74,9 +75,9 @@ class ContactHelper:
     def modify_contact_by_index(self, index, contact):
         wd = self.app.wd
         self.app.open_home_page()
-        #выбрать первый контакт в списке
+        # выбрать первый контакт в списке
         wd.find_element("name", "selected[]").click()
-        #нажать кнопку редактирования
+        # нажать кнопку редактирования
         wd.find_elements(By.XPATH, "//img[@alt='Edit']")[index].click()
         self.filling_in_the_fields(contact)
         # нажать кнопку сохранения контакта
@@ -89,7 +90,7 @@ class ContactHelper:
         wd = self.app.wd
         self.app.open_home_page()
         self.select_contact_by_index(index)
-        #нажать кнопку удаления
+        # нажать кнопку удаления
         wd.find_element(By.XPATH, "//input[@value='Delete']").click()
         alert = wd.switch_to.alert
         alert.accept()
@@ -117,9 +118,81 @@ class ContactHelper:
             wd = self.app.wd
             self.app.open_home_page()
             self.contact_cache = []
-            for element in wd.find_elements("name", "entry"):
-                id = element.find_element("name", "selected[]").get_attribute("value")
-                firstname = element.find_element(By.XPATH, "td[3]").text
-                lastname = element.find_element(By.XPATH, "td[2]").text
-                self.contact_cache.append(Contact(firstname=firstname, lastname=lastname, id=id))
+            for row in wd.find_elements("name", "entry"):
+                cells = row.find_elements(By.TAG_NAME, "td")
+                id = cells[0].find_element("name", "selected[]").get_attribute("value")
+                firstname = cells[2].text
+                lastname = cells[1].text
+                address = cells[3].text
+                all_phones = cells[5].text
+                all_emails = cells[4].text
+                self.contact_cache.append(Contact(firstname=firstname, lastname=lastname, id=id, all_phones=all_phones,
+                                                  all_emails=all_emails, address=address))
         return list(self.contact_cache)
+
+    def open_contact_to_edit_by_index(self, index):
+        wd = self.app.wd
+        self.app.open_home_page()
+        row = wd.find_elements("name", "entry")[index]
+        cell = row.find_elements(By.TAG_NAME, "td")[7]
+        cell.find_element(By.TAG_NAME, "a").click()
+
+    def open_contact_view_by_index(self, index):
+        wd = self.app.wd
+        self.app.open_home_page()
+        row = wd.find_elements("name", "entry")[index]
+        cell = row.find_elements(By.TAG_NAME, "td")[6]
+        cell.find_element(By.TAG_NAME, "a").click()
+
+    def get_contact_info_from_edit_page(self, index):
+        wd = self.app.wd
+        self.open_contact_to_edit_by_index(index)
+        firstname = wd.find_element("name", "firstname").get_attribute("value")
+        lastname = wd.find_element("name", "lastname").get_attribute("value")
+        id = wd.find_element("name", "id").get_attribute("value")
+        home = wd.find_element("name", "home").get_attribute("value")
+        work = wd.find_element("name", "work").get_attribute("value")
+        mobile = wd.find_element("name", "mobile").get_attribute("value")
+        phone2 = wd.find_element("name", "phone2").get_attribute("value")
+        address = wd.find_element("name", "address").get_attribute("value")
+        email = wd.find_element("name", "email").get_attribute("value")
+        email2 = wd.find_element("name", "email2").get_attribute("value")
+        email3 = wd.find_element("name", "email3").get_attribute("value")
+        return Contact(firstname=firstname, lastname=lastname, id=id, home=home, work=work,
+                       mobile=mobile, phone2=phone2, email=email, email2=email2,
+                       email3=email3, address=address)
+
+    def get_contact_from_view_page(self, index):
+        wd = self.app.wd
+        self.open_contact_view_by_index(index)
+        text = wd.find_element(By.ID, "content").text
+        home = self.search_find("H: (.*)", text)
+        work = self.search_find("W: (.*)", text)
+        mobile = self.search_find("M: (.*)", text)
+        phone2 = self.search_find("P: (.*)", text)
+        return Contact(home=home, work=work, mobile=mobile, phone2=phone2)
+
+    def search_find(self, regex, text):
+        rs = re.search(regex, text)
+        if rs:
+            return rs.group(1)
+        else:
+            return ''
+
+def clear(s):
+    return re.sub("[() -]", "", s)
+
+
+def merge_phones_like_from_on_home_page(contact):
+    return "\n".join(filter(lambda x: x != "",
+                            map(lambda x: clear(x),
+                                filter(lambda x: x is not None,
+                                       [contact.home, contact.work, contact.mobile,
+                                        contact.phone2]))))
+
+
+def merge_emails_like_from_on_home_page(contact):
+    return "\n".join(filter(lambda x: x != "",
+                            map(lambda x: clear(x),
+                                filter(lambda x: x is not None,
+                                       [contact.email, contact.email2, contact.email3]))))
