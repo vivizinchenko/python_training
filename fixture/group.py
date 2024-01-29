@@ -1,5 +1,6 @@
 from selenium.common.exceptions import NoSuchElementException
 from model.group import Group
+from selenium.webdriver.common.by import By
 
 
 class GroupHelper:
@@ -90,3 +91,25 @@ class GroupHelper:
                 id = element.find_element("name", "selected[]").get_attribute("value")
                 self.group_cache.append(Group(name=text, id=id))
         return list(self.group_cache)
+
+    def delete_group_by_id(self, id):
+        wd = self.app.wd
+        self.open_groups_page()
+        self.select_group_by_id(id)
+        wd.find_element("name", "delete").click()
+        self.open_groups_page()
+        self.group_cache = None
+
+    def select_group_by_id(self, id):
+        wd = self.app.wd
+        wd.find_element(By.CSS_SELECTOR, "input[value='%s']" % id).click()
+
+    def modify_group_by_id(self, group, id):
+        wd = self.app.wd
+        self.open_groups_page()
+        self.select_group_by_id(id)
+        wd.find_element("name", "edit").click()
+        self.filling_in_the_fields(group)
+        wd.find_element("name", "update").click()
+        self.open_groups_page()
+        self.group_cache = None

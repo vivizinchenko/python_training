@@ -179,6 +179,35 @@ class ContactHelper:
         else:
             return ''
 
+    def delete_contact_by_id(self, id):
+        wd = self.app.wd
+        self.app.open_home_page()
+        self.select_contact_by_id(id)
+        wd.find_element(By.XPATH, "//input[@value='Delete']").click()
+        alert = wd.switch_to.alert
+        alert.accept()
+        self.app.open_home_page()
+        self.contact_cache = None
+
+    def select_contact_by_id(self, id):
+        wd = self.app.wd
+        self.app.open_home_page()
+        wd.find_element(By.CSS_SELECTOR, "input[id='%s']" % id).click()
+
+    def modify_contact_by_id(self, contact, id):
+        wd = self.app.wd
+        self.app.open_home_page()
+        self.open_edit_contact_by_id(id)
+        self.filling_in_the_fields(contact)
+        wd.find_element(By.XPATH, "//input[@value='Update']").click()
+        self.contact_cache = None
+
+    def open_edit_contact_by_id(self, id):
+        wd = self.app.wd
+        self.app.open_home_page()
+        wd.find_element(By.XPATH, "//*[@id='%s']/../..//*[@title='Edit']" % id).click()
+        #wd.find_elements(By.XPATH, "//img[@alt='Edit']" % id).click()
+
 def clear(s):
     return re.sub("[() -]", "", s)
 
@@ -196,3 +225,6 @@ def merge_emails_like_from_on_home_page(contact):
                             map(lambda x: clear(x),
                                 filter(lambda x: x is not None,
                                        [contact.email, contact.email2, contact.email3]))))
+
+
+
