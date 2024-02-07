@@ -2,6 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 from model.contact import Contact
 import re
+import time
 
 
 class ContactHelper:
@@ -133,6 +134,7 @@ class ContactHelper:
     def open_contact_to_edit_by_index(self, index):
         wd = self.app.wd
         self.app.open_home_page()
+        time.sleep(1)
         row = wd.find_elements("name", "entry")[index]
         cell = row.find_elements(By.TAG_NAME, "td")[7]
         cell.find_element(By.TAG_NAME, "a").click()
@@ -206,7 +208,6 @@ class ContactHelper:
         wd = self.app.wd
         self.app.open_home_page()
         wd.find_element(By.XPATH, "//*[@id='%s']/../..//*[@title='Edit']" % id).click()
-        #wd.find_elements(By.XPATH, "//img[@alt='Edit']" % id).click()
 
 def clear(s):
     return re.sub("[() -]", "", s)
