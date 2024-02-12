@@ -2,6 +2,7 @@ from selenium import webdriver
 from fixture.session import SessionHelper
 from fixture.group import GroupHelper
 from fixture.contact import ContactHelper
+import time
 
 
 class Application:
@@ -29,6 +30,7 @@ class Application:
         wd = self.wd
         if not (wd.current_url.endswith("/index.php")):
             wd.get(self.base_url)
+        time.sleep(1)
 
     def destroy(self):
         self.wd.quit()

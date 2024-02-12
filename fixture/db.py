@@ -37,5 +37,16 @@ class DbFixture:
                             email2=email2, email3=email3, home=home, mobile=mobile, work=work, phone2=phone2))
         return list
 
+    def get_groups_with_contacts(self):
+        list = []
+
+        with self.connection.cursor() as cursor:
+            cursor.execute(
+                "select group_id, id from address_in_groups where deprecated = '0000-00-00 00:00:00'")
+            for row in cursor:
+                (group_id, id) = row
+                list.append(Group(id=str(group_id)))
+        return list
+
     def destroy(self):
         self.connection.close()

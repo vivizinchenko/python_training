@@ -1,6 +1,7 @@
 from selenium.common.exceptions import NoSuchElementException
 from model.group import Group
 from selenium.webdriver.common.by import By
+import time
 
 
 class GroupHelper:
@@ -10,6 +11,7 @@ class GroupHelper:
 
     def open_groups_page(self):
         wd = self.app.wd
+        time.sleep(1)
         if not (wd.current_url.endswith("/group.php") and len(wd.find_elements("name", "new")) > 0):
             wd.find_element("link text", "groups").click()
 

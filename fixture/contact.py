@@ -134,7 +134,6 @@ class ContactHelper:
     def open_contact_to_edit_by_index(self, index):
         wd = self.app.wd
         self.app.open_home_page()
-        time.sleep(1)
         row = wd.find_elements("name", "entry")[index]
         cell = row.find_elements(By.TAG_NAME, "td")[7]
         cell.find_element(By.TAG_NAME, "a").click()
@@ -193,7 +192,7 @@ class ContactHelper:
 
     def select_contact_by_id(self, id):
         wd = self.app.wd
-        self.app.open_home_page()
+        #self.app.open_home_page()
         wd.find_element(By.CSS_SELECTOR, "input[id='%s']" % id).click()
 
     def modify_contact_by_id(self, contact, id):
@@ -208,6 +207,32 @@ class ContactHelper:
         wd = self.app.wd
         self.app.open_home_page()
         wd.find_element(By.XPATH, "//*[@id='%s']/../..//*[@title='Edit']" % id).click()
+
+    def select_current_group(self, group):
+        wd = self.app.wd
+        self.app.open_home_page()
+        select = Select(wd.find_element("name", "group"))
+        select.select_by_value(group.id)
+
+    def add_contact_to_group(self, contact, group):
+        wd = self.app.wd
+        self.app.open_home_page()
+        self.select_contact_by_id(contact.id)
+        select = Select(wd.find_element(By.NAME, "to_group"))
+        select.select_by_value(group.id)
+        wd.find_element(By.NAME, "add").click()
+        self.app.open_home_page()
+        self.contact_cache = None
+
+    def delete_contact_from_group(self, contact, group):
+        wd = self.app.wd
+        #self.app.open_home_page()
+        self.select_current_group(group=group)
+        self.select_contact_by_id(contact.id)
+        wd.execute_script("window.scrollBy(0,document.body.scrollHeight)")
+        wd.find_element("name", "remove").click()
+        self.app.open_home_page()
+        self.contact_cache = None
 
 def clear(s):
     return re.sub("[() -]", "", s)
